@@ -5,13 +5,13 @@ import java.awt.*;
 
 public class MyFrame extends JFrame {
 
-    final int WIDTH;
-    final int HEIGHT;
-    final String TITLE;
+    private int WIDTH;
+    private int HEIGHT;
+    private String TITLE;
 
     public MyFrame() {
-        this.WIDTH = 800;
-        this.HEIGHT = 600;
+        this.WIDTH = 500;
+        this.HEIGHT = 500;
         this.TITLE = "WAR (Java Edition)";
 
         this.setSize(new Dimension(this.WIDTH, this.HEIGHT));
@@ -22,12 +22,10 @@ public class MyFrame extends JFrame {
     }
 
     public int getWIDTH() {
-
-        return WIDTH;
+        return this.WIDTH;
     }
 
     public int getHEIGHT() {
-
-        return HEIGHT;
+        return this.HEIGHT;
     }
 }
