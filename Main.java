@@ -9,6 +9,7 @@ public class Main {
         int HEIGHT = myFrame.getHEIGHT();
 
         MyPanel myPanel = new MyPanel(WIDTH, HEIGHT);
+        myPanel.run();
 
         myFrame.add(myPanel);
 
