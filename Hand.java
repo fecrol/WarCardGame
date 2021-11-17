@@ -22,4 +22,8 @@ public class Hand {
     public int getHandSize() {
         return this.hand.size();
     }
+
+    public Card getCard(int index) {
+        return this.hand.get(index);
+    }
 }
