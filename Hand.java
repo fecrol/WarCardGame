@@ -15,8 +15,8 @@ public class Hand {
         this.hand.add(card);
     }
 
-    public void discardCard(Card card) {
-        this.hand.remove(card);
+    public Card discardCard(int index) {
+        return this.hand.remove(index);
     }
 
     public int getHandSize() {
