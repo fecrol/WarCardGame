@@ -26,15 +26,30 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
     private int deck2Y;
     private boolean deck2Moving;
 
-    private int playerHandX;
-    private int playerHandY;
+    private int playerHand1X;
+    private int playerHand1Y;
+    private int playerHand2X;
+    private int playerHand2Y;
 
-    private int computerHandX;
-    private int computerHandY;
+    private int computerHand1X;
+    private int computerHand1Y;
+    private int computerHand2X;
+    private int computerHand2Y;
+
+    private int playerDiscardX;
+    private int playerDiscardY;
+
+    private int computerDiscardX;
+    private int computerDiscardY;
+
+    private boolean playerMoving;
+    private boolean computerMoving;
 
     private int deckXVel;
     private int deckYVel;
     private int deckDealYVel;
+    private int handXVel;
+    private int handYVel;
 
     private int shuffleCount;
 
@@ -61,15 +76,30 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         this.deck2Y = this.deck1Y;
         this.deck2Moving = true;
 
-        this.playerHandX = (this.WIDTH / 2) - (this.deckImg.getWidth(null) / 2);
-        this.playerHandY = this.HEIGHT - this.deckImg.getHeight(null) - 50;
+        this.playerHand1X = (this.WIDTH / 2) - (this.deckImg.getWidth(null) / 2);
+        this.playerHand1Y = this.HEIGHT - this.deckImg.getHeight(null) - 50;
+        this.playerHand2X = this.playerHand1X;
+        this.playerHand2Y = this.playerHand1Y;
 
-        this.computerHandX = (this.WIDTH / 2) - (this.deckImg.getWidth(null) / 2);
-        this.computerHandY = 50;
+        this.computerHand1X = (this.WIDTH / 2) - (this.deckImg.getWidth(null) / 2);
+        this.computerHand1Y = 50;
+        this.computerHand2X = this.computerHand1X;
+        this.computerHand2Y = this.computerHand1Y;
+
+        this.playerDiscardX = (this.WIDTH / 2) + 5;
+        this.playerDiscardY = this.deck1Y;
+
+        this.computerDiscardX = (this.WIDTH / 2) - (this.deckImg.getWidth(null)) - 5;
+        this.computerDiscardY = this.deck1Y;
+
+        this.playerMoving = true;
+        this.computerMoving = false;
 
         this.deckXVel = 10;
         this.deckYVel = -1;
-        this.deckDealYVel = 15;
+        this.deckDealYVel = 20;
+        this.handXVel = 2;
+        this.handYVel = -5;
 
         this.shuffleCount = 0;
 
@@ -113,14 +143,14 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         // Animates the deal of cards from the deck and adds cards to player and computer hands
 
         this.deck2Y += this.deckDealYVel;
-        if (this.deck2Y >= this.playerHandY) {
+        if (this.deck2Y >= this.playerHand2Y) {
             this.playerHand.addCard(this.deck.dealCard());
             this.deck2Y = this.deck1Y;
             this.deckDealYVel *= -1;
         }
 
         this.deck2Y += this.deckDealYVel;
-        if (this.deck2Y <= this.computerHandY) {
+        if (this.deck2Y <= this.computerHand2Y) {
             this.computerHand.addCard(this.deck.dealCard());
             this.deck2Y = this.deck1Y;
             this.deckDealYVel *= -1;
@@ -130,9 +160,47 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
 
     private void play() {
 
-        Card playerCard = this.playerHand.discardCard(this.playerHand.getHandSize() - 1);
-        System.out.println("removed");
-        this.clicked = false;
+        if (this.playerMoving) {
+            if (this.playerHand2X < this.playerDiscardX) {
+                this.playerHand2X += this.handXVel;
+            }
+            if (this.playerHand2Y > this.playerDiscardY) {
+                this.playerHand2Y += this.handYVel;
+            }
+        }
+
+        if (this.playerHand2X >= this.playerDiscardX && playerHand2Y <= this.playerDiscardY) {
+            this.playerMoving = false;
+            this.playerHand2X = this.playerHand1X;
+            this.playerHand2Y = this.playerHand1Y;
+            Card playerCard = this.playerHand.discardCard(this.playerHand.getHandSize() - 1);
+            System.out.println("removed");
+            // this.clicked = false;
+            this.handXVel *= -1;
+            this.handYVel *= -1;
+            this.computerMoving = true;
+        }
+
+        if (this.computerMoving) {
+            if (this.computerHand2X > this.computerDiscardX) {
+                this.computerHand2X += this.handXVel;
+            }
+            if (this.computerHand2Y < this.computerDiscardY) {
+                this.computerHand2Y += this.handYVel;
+            }
+        }
+
+        if (this.computerHand2X <= this.computerDiscardX && computerHand2Y >= this.computerDiscardY) {
+            this.computerMoving = false;
+            this.computerHand2X = this.computerHand1X;
+            this.computerHand2Y = this.computerHand1Y;
+            Card computerCard = this.computerHand.discardCard(this.playerHand.getHandSize() - 1);
+            System.out.println("removed");
+            this.handXVel *= -1;
+            this.handYVel *= -1;
+            this.playerMoving = true;
+            this.clicked = false;
+        }
     }
 
     private boolean shuffling() {
@@ -149,7 +217,7 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
 
     private boolean mouseOverCard(MouseEvent e) {
 
-        if (e.getX() >= this.playerHandX && e.getX() <= this.playerHandX + this.deckImg.getWidth(null) && e.getY() >= this.playerHandY && e.getY() <= this.playerHandY + this.deckImg.getHeight(null)) {
+        if (e.getX() >= this.playerHand2X && e.getX() <= this.playerHand2X + this.deckImg.getWidth(null) && e.getY() >= this.playerHand2Y && e.getY() <= this.playerHand2Y + this.deckImg.getHeight(null)) {
             return true;
         }
         return false;
@@ -168,19 +236,27 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         g2D.drawImage(this.bg, 0, 0, null);
 
         if (this.playerHand.getHandSize() > 0 && this.dealing()) {
-            g2D.drawImage(this.deckImg, this.playerHandX, this.playerHandY, null);
-            g2D.drawImage(this.deckImg, this.computerHandX, this.computerHandY, null);
+            g2D.drawImage(this.deckImg, this.playerHand2X, this.playerHand2Y, null);
+        }
+
+        if (this.computerHand.getHandSize() > 0 && this.dealing()) {
+            g2D.drawImage(this.deckImg, this.computerHand2X, this.computerHand2Y, null);
         }
 
         if (this.playerHand.getHandSize() >= 2 && !this.dealing()) {
-            g2D.drawImage(this.deckImg, this.playerHandX, this.playerHandY, null);
-            g2D.drawImage(this.deckImg, this.playerHandX, this.playerHandY, null);
-            g2D.drawImage(this.deckImg, this.computerHandX, this.computerHandY, null);
-            g2D.drawImage(this.deckImg, this.computerHandX, this.computerHandY, null);
+            g2D.drawImage(this.deckImg, this.playerHand1X, this.playerHand1Y, null);
+            g2D.drawImage(this.deckImg, this.playerHand2X, this.playerHand2Y, null);
         }
         else if (this.playerHand.getHandSize() < 2 && this.playerHand.getHandSize() > 0 && !this.dealing()) {
-            g2D.drawImage(this.deckImg, this.playerHandX, this.playerHandY, null);
-            g2D.drawImage(this.deckImg, this.computerHandX, this.computerHandY, null);
+            g2D.drawImage(this.deckImg, this.playerHand2X, this.playerHand2Y, null);
+        }
+
+        if (this.computerHand.getHandSize() >= 2 && !this.dealing()) {
+            g2D.drawImage(this.deckImg, this.computerHand1X, this.computerHand1Y, null);
+            g2D.drawImage(this.deckImg, this.computerHand2X, this.computerHand2Y, null);
+        }
+        else if (this.computerHand.getHandSize() < 2 && this.computerHand.getHandSize() > 0 && !this.dealing()) {
+            g2D.drawImage(this.deckImg, this.computerHand2X, this.computerHand2Y, null);
         }
 
         if (this.deck.getDeckSize() > 0) {
