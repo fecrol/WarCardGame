@@ -1,5 +1,7 @@
 package com.warCardGame;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -14,7 +16,8 @@ public class Deck {
     public Deck() {
         for (int i=0; i<this.suits.length; i++) {
             for (int j=0; j<this.ranks.length; j++) {
-                Card card = new Card(suits[i], ranks[j], values[j]);
+                Image cardImg = new ImageIcon("img\\cards\\" + this.ranks[j] + " of " + this.suits[i] + ".png").getImage();
+                Card card = new Card(suits[i], ranks[j], values[j], cardImg);
                 this.deck.add(card);
             }
         }
@@ -51,5 +54,9 @@ public class Deck {
 
     public int getDeckSize() {
         return this.deck.size();
+    }
+
+    public Card getCard(int index) {
+        return this.deck.get(index);
     }
 }
