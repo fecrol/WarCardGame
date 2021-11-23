@@ -14,8 +14,8 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
     private Image bg;
 
     private Deck deck;
-    private Hand playerHand;
-    private Hand computerHand;
+    private Player user;
+    private Player computer;
 
     private Image deckImg;
     private int deck1X;
@@ -64,8 +64,8 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         this.bg = new ImageIcon("img\\background.png").getImage();
 
         this.deck = new Deck();
-        this.playerHand = new Hand();
-        this.computerHand = new Hand();
+        this.user = new Player();
+        this.computer = new Player();
 
         this.deckImg = new ImageIcon("img\\cards\\back.png").getImage();
         this.deck1X = (this.WIDTH / 2) - (this.deckImg.getWidth(null) / 2);
@@ -144,14 +144,14 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
 
         this.deck2Y += this.deckDealYVel;
         if (this.deck2Y >= this.playerHand2Y) {
-            this.playerHand.addCard(this.deck.dealCard());
+            this.user.getHand().addCard(this.deck.dealCard());
             this.deck2Y = this.deck1Y;
             this.deckDealYVel *= -1;
         }
 
         this.deck2Y += this.deckDealYVel;
         if (this.deck2Y <= this.computerHand2Y) {
-            this.computerHand.addCard(this.deck.dealCard());
+            this.computer.getHand().addCard(this.deck.dealCard());
             this.deck2Y = this.deck1Y;
             this.deckDealYVel *= -1;
         }
@@ -173,9 +173,8 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
             this.playerMoving = false;
             this.playerHand2X = this.playerHand1X;
             this.playerHand2Y = this.playerHand1Y;
-            Card playerCard = this.playerHand.discardCard(this.playerHand.getHandSize() - 1);
-            System.out.println("removed");
-            // this.clicked = false;
+            Card playerCard = this.user.getHand().discardCard(this.user.getHand().getHandSize() - 1);
+            this.user.getPlayedCard().addCard(playerCard);
             this.handXVel *= -1;
             this.handYVel *= -1;
             this.computerMoving = true;
@@ -194,8 +193,8 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
             this.computerMoving = false;
             this.computerHand2X = this.computerHand1X;
             this.computerHand2Y = this.computerHand1Y;
-            Card computerCard = this.computerHand.discardCard(this.playerHand.getHandSize() - 1);
-            System.out.println("removed");
+            Card computerCard = this.computer.getHand().discardCard(this.computer.getHand().getHandSize() - 1);
+            this.computer.getPlayedCard().addCard(computerCard);
             this.handXVel *= -1;
             this.handYVel *= -1;
             this.playerMoving = true;
@@ -235,27 +234,35 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
 
         g2D.drawImage(this.bg, 0, 0, null);
 
-        if (this.playerHand.getHandSize() > 0 && this.dealing()) {
+        if (this.user.getPlayedCard().getHandSize() > 0) {
+            g2D.drawImage(this.user.getPlayedCard().getCard().getImg(), this.playerDiscardX, this.playerDiscardY, null);
+        }
+
+        if (this.computer.getPlayedCard().getHandSize() > 0) {
+            g2D.drawImage(this.computer.getPlayedCard().getCard().getImg(), this.computerDiscardX, this.computerDiscardY, null);
+        }
+
+        if (this.user.getHand().getHandSize() > 0 && this.dealing()) {
             g2D.drawImage(this.deckImg, this.playerHand2X, this.playerHand2Y, null);
         }
 
-        if (this.computerHand.getHandSize() > 0 && this.dealing()) {
+        if (this.computer.getHand().getHandSize() > 0 && this.dealing()) {
             g2D.drawImage(this.deckImg, this.computerHand2X, this.computerHand2Y, null);
         }
 
-        if (this.playerHand.getHandSize() >= 2 && !this.dealing()) {
+        if (this.user.getHand().getHandSize() >= 2 && !this.dealing()) {
             g2D.drawImage(this.deckImg, this.playerHand1X, this.playerHand1Y, null);
             g2D.drawImage(this.deckImg, this.playerHand2X, this.playerHand2Y, null);
         }
-        else if (this.playerHand.getHandSize() < 2 && this.playerHand.getHandSize() > 0 && !this.dealing()) {
+        else if (this.user.getHand().getHandSize() < 2 && this.user.getHand().getHandSize() > 0 && !this.dealing()) {
             g2D.drawImage(this.deckImg, this.playerHand2X, this.playerHand2Y, null);
         }
 
-        if (this.computerHand.getHandSize() >= 2 && !this.dealing()) {
+        if (this.computer.getHand().getHandSize() >= 2 && !this.dealing()) {
             g2D.drawImage(this.deckImg, this.computerHand1X, this.computerHand1Y, null);
             g2D.drawImage(this.deckImg, this.computerHand2X, this.computerHand2Y, null);
         }
-        else if (this.computerHand.getHandSize() < 2 && this.computerHand.getHandSize() > 0 && !this.dealing()) {
+        else if (this.computer.getHand().getHandSize() < 2 && this.computer.getHand().getHandSize() > 0 && !this.dealing()) {
             g2D.drawImage(this.deckImg, this.computerHand2X, this.computerHand2Y, null);
         }
 
