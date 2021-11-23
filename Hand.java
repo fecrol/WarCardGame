@@ -23,6 +23,14 @@ public class Hand {
         return this.hand.size();
     }
 
+    public Card getCard() {
+        /*
+        Returns the last card from hand
+         */
+
+        return this.hand.get(this.hand.size() - 1);
+    }
+
     public Card getCard(int index) {
         return this.hand.get(index);
     }
