@@ -36,6 +36,12 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
     private int computerHand2X;
     private int computerHand2Y;
 
+    private int playerCardX;
+    private int playerCardY;
+
+    private int computerCardX;
+    private int computerCardY;
+
     private int playerDiscardX;
     private int playerDiscardY;
 
@@ -86,11 +92,17 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         this.computerHand2X = this.computerHand1X;
         this.computerHand2Y = this.computerHand1Y;
 
-        this.playerDiscardX = (this.WIDTH / 2) + 5;
-        this.playerDiscardY = this.deck1Y;
+        this.playerCardX = (this.WIDTH / 2) + 5;
+        this.playerCardY = this.deck1Y;
 
-        this.computerDiscardX = (this.WIDTH / 2) - (this.deckImg.getWidth(null)) - 5;
-        this.computerDiscardY = this.deck1Y;
+        this.computerCardX = (this.WIDTH / 2) - (this.deckImg.getWidth(null)) - 5;
+        this.computerCardY = this.deck1Y;
+
+        this.playerDiscardX = this.playerHand1X + this.deckImg.getWidth(null) + 5;
+        this.playerDiscardY = this.playerHand1Y;
+
+        this.computerDiscardX = this.computerHand1X + this.deckImg.getWidth(null) + 5;
+        this.computerDiscardY = this.computerHand1Y;
 
         this.playerMoving = true;
         this.computerMoving = false;
@@ -161,15 +173,15 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
     private void play() {
 
         if (this.playerMoving) {
-            if (this.playerHand2X < this.playerDiscardX) {
+            if (this.playerHand2X < this.playerCardX) {
                 this.playerHand2X += this.handXVel;
             }
-            if (this.playerHand2Y > this.playerDiscardY) {
+            if (this.playerHand2Y > this.playerCardY) {
                 this.playerHand2Y += this.handYVel;
             }
         }
 
-        if (this.playerHand2X >= this.playerDiscardX && playerHand2Y <= this.playerDiscardY) {
+        if (this.playerHand2X >= this.playerCardX && playerHand2Y <= this.playerCardY) {
             this.playerMoving = false;
             this.playerHand2X = this.playerHand1X;
             this.playerHand2Y = this.playerHand1Y;
@@ -181,15 +193,15 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         }
 
         if (this.computerMoving) {
-            if (this.computerHand2X > this.computerDiscardX) {
+            if (this.computerHand2X > this.computerCardX) {
                 this.computerHand2X += this.handXVel;
             }
-            if (this.computerHand2Y < this.computerDiscardY) {
+            if (this.computerHand2Y < this.computerCardY) {
                 this.computerHand2Y += this.handYVel;
             }
         }
 
-        if (this.computerHand2X <= this.computerDiscardX && computerHand2Y >= this.computerDiscardY) {
+        if (this.computerHand2X <= this.computerCardX && computerHand2Y >= this.computerCardY) {
             this.computerMoving = false;
             this.computerHand2X = this.computerHand1X;
             this.computerHand2Y = this.computerHand1Y;
@@ -222,6 +234,23 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         return false;
     }
 
+    private int compareCards(Card playerCard, Card computerCard) {
+        /*
+        Compares the cards to decide whether the player won, the computer won or if it's war
+        0 = player won, 1 = computer won, 2 = war
+         */
+
+        if (playerCard.getValue() > computerCard.getValue()) {
+            return 0;
+        }
+        else if (computerCard.getValue() > playerCard.getValue()) {
+            return 1;
+        }
+        else  {
+            return 2;
+        }
+    }
+
     public void run() {
         this.deck.shuffle();
         this.timer.start();
@@ -235,11 +264,11 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         g2D.drawImage(this.bg, 0, 0, null);
 
         if (this.user.getPlayedCard().getHandSize() > 0) {
-            g2D.drawImage(this.user.getPlayedCard().getCard().getImg(), this.playerDiscardX, this.playerDiscardY, null);
+            g2D.drawImage(this.user.getPlayedCard().getCard().getImg(), this.playerCardX, this.playerCardY, null);
         }
 
         if (this.computer.getPlayedCard().getHandSize() > 0) {
-            g2D.drawImage(this.computer.getPlayedCard().getCard().getImg(), this.computerDiscardX, this.computerDiscardY, null);
+            g2D.drawImage(this.computer.getPlayedCard().getCard().getImg(), this.computerCardX, this.computerCardY, null);
         }
 
         if (this.user.getHand().getHandSize() > 0 && this.dealing()) {
