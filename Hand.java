@@ -15,6 +15,10 @@ public class Hand {
         this.hand.add(card);
     }
 
+    public Card discardCard() {
+        return this.hand.remove(0);
+    }
+
     public Card discardCard(int index) {
         return this.hand.remove(index);
     }
