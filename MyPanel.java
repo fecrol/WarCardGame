@@ -38,9 +38,13 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
 
     private int playerCardX;
     private int playerCardY;
+    private int playerCardTempX;
+    private int playerCardTempY;
 
     private int computerCardX;
     private int computerCardY;
+    private int computerCardTempX;
+    private int computerCardTempY;
 
     private int playerDiscardX;
     private int playerDiscardY;
@@ -60,6 +64,8 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
     private int shuffleCount;
 
     private boolean clicked;
+
+    private boolean isWar;
 
     public MyPanel(int WIDTH, int HEIGHT) {
 
@@ -94,9 +100,13 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
 
         this.playerCardX = (this.WIDTH / 2) + 5;
         this.playerCardY = this.deck1Y;
+        this.playerCardTempX = this.playerCardX;
+        this.playerCardTempY = this.playerCardY;
 
         this.computerCardX = (this.WIDTH / 2) - (this.deckImg.getWidth(null)) - 5;
         this.computerCardY = this.deck1Y;
+        this.computerCardTempX = this.computerCardX;
+        this.computerCardTempY = this.computerCardY;
 
         this.playerDiscardX = this.playerHand1X + this.deckImg.getWidth(null) + 5;
         this.playerDiscardY = this.playerHand1Y;
@@ -116,6 +126,8 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         this.shuffleCount = 0;
 
         this.clicked = false;
+
+        this.isWar = false;
     }
 
     private void shuffle() {
@@ -209,8 +221,74 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
             this.computer.getPlayedCard().addCard(computerCard);
             this.handXVel *= -1;
             this.handYVel *= -1;
-            this.playerMoving = true;
-            this.clicked = false;
+        }
+    }
+
+    private void collect() {
+        Card playerCard = this.user.getPlayedCard().getCard();
+        Card computerCard = this.computer.getPlayedCard().getCard();
+        int result = this.compareCards(playerCard, computerCard);
+
+        if (result == 0) {
+            if (this.playerCardX < this.playerDiscardX) {
+                this.playerCardX += this.handXVel;
+            }
+            if (this.playerCardY < this.playerDiscardY) {
+                this.playerCardY -= this.handYVel;
+            }
+            if (this.computerCardX < this.playerDiscardX) {
+                this.computerCardX += this.handXVel;
+            }
+            if (this.computerCardY < this.playerDiscardY && this.computerCardX >= this.playerDiscardX) {
+                this.computerCardY -= this.handYVel;
+            }
+
+            if (this.playerCardX >= this.playerDiscardX && this.playerCardY >= this.playerDiscardY) {
+                this.playerCardX = this.playerDiscardX;
+                this.playerCardY = this.playerDiscardY;
+            }
+
+            if (this.computerCardX >= this.playerDiscardX && this.computerCardY >= this.playerDiscardY) {
+                this.computerCardX = this.playerDiscardX;
+                this.computerCardY = this.playerDiscardY;
+                this.user.getWonCards().addCard(this.user.getPlayedCard().discardCard());
+                this.user.getWonCards().addCard(this.computer.getPlayedCard().discardCard());
+                this.resetCoordinates();
+                this.playerMoving = true;
+                this.clicked = false;
+            }
+        }
+        if (result == 1) {
+            if (this.playerCardX < this.computerDiscardX) {
+                this.playerCardX += this.handXVel;
+            }
+            if (this.playerCardY > this.computerDiscardY) {
+                this.playerCardY += this.handYVel;
+            }
+            if (this.computerCardX < this.computerDiscardX) {
+                this.computerCardX += this.handXVel;
+            }
+            if (this.computerCardY > this.computerDiscardY && this.computerCardX >= this.computerDiscardX) {
+                this.computerCardY += this.handYVel;
+            }
+
+            if (this.playerCardX >= this.computerDiscardX && this.playerCardY <= this.computerDiscardY) {
+                this.playerCardX = this.computerDiscardX;
+                this.playerCardY = this.computerDiscardY;
+            }
+
+            if (this.computerCardX >= this.computerDiscardX && this.computerCardY <= this.computerDiscardY) {
+                this.computerCardX = this.computerDiscardX;
+                this.computerCardY = this.computerDiscardY;
+                this.computer.getWonCards().addCard(this.user.getPlayedCard().discardCard());
+                this.computer.getWonCards().addCard(this.computer.getPlayedCard().discardCard());
+                this.resetCoordinates();
+                this.playerMoving = true;
+                this.clicked = false;
+            }
+        }
+        if (result == 2) {
+            this.isWar = true;
         }
     }
 
@@ -223,7 +301,11 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
     }
 
     private boolean playing() {
-        return !this.shuffling() && !this.dealing() && this.clicked;
+        return !this.shuffling() && !this.dealing() && !this.collecting() && this.clicked;
+    }
+
+    private boolean collecting() {
+        return this.computer.getPlayedCard().getHandSize() > 0;
     }
 
     private boolean mouseOverCard(MouseEvent e) {
@@ -256,12 +338,27 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
         this.timer.start();
     }
 
+    private void resetCoordinates() {
+        this.playerCardX = this.playerCardTempX;
+        this.playerCardY = this.playerCardTempY;
+        this.computerCardX = this.computerCardTempX;
+        this.computerCardY = this.computerCardTempY;
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         Graphics2D g2D = (Graphics2D) g;
         super.paintComponent(g2D);
 
         g2D.drawImage(this.bg, 0, 0, null);
+
+        if (this.user.getWonCards().getHandSize() > 0) {
+            g2D.drawImage(this.user.getWonCards().getCard().getImg(), this.playerDiscardX, this.playerDiscardY, null);
+        }
+
+        if (this.computer.getWonCards().getHandSize() > 0) {
+            g2D.drawImage(this.computer.getWonCards().getCard().getImg(), this.computerDiscardX, this.computerDiscardY, null);
+        }
 
         if (this.user.getPlayedCard().getHandSize() > 0) {
             g2D.drawImage(this.user.getPlayedCard().getCard().getImg(), this.playerCardX, this.playerCardY, null);
@@ -311,8 +408,12 @@ public class MyPanel extends JPanel implements ActionListener, MouseListener {
             this.deal();
         }
 
-        if (this.playing()) {
+        if (this.playing() && !this.isWar) {
             this.play();
+        }
+
+        if (!this.playing() && this.collecting()) {
+            this.collect();
         }
         repaint();
     }
